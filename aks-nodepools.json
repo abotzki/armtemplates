@@ -1,0 +1,99 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "aksClusterName": {
+            "type": "string",
+            "defaultValue": "aks101cluster-vmss",
+            "metadata": {
+                "description": "The name of the Managed Cluster resource."
+            }
+        },
+        "location": {
+            "defaultValue": "[resourceGroup().location]",
+            "type": "string",
+            "metadata": {
+                "description": "The location of AKS resource."
+            }
+        },
+        "dnsPrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "Optional DNS prefix to use with hosted Kubernetes API server FQDN."
+            }
+        },
+        "linuxAdminUsername": {
+              "type": "string",
+              "metadata": {
+                "description": "User name for the Linux Virtual Machines."
+              }
+        },
+        "sshRSAPublicKey": {
+          "type": "string",
+          "metadata": {
+            "description": "Configure all linux machines with the SSH RSA public key string. Your key should include three parts, for example 'ssh-rsa AAAAB...snip...UcyupgH azureuser@linuxvm'"
+          }
+        },
+        "agentPoolProfiles": {
+          "type": "array",
+          "metadata": {
+            "description": "Define one or multiple node pools"
+          },
+          "defaultValue": [
+                    {
+                        "name": "nodepool1",
+                        "nodecount": 3,
+                        "nodevmSize": "Standard_D4_v3",
+                        "osDiskSizeGB": 100,
+                        "storageProfile": "ManagedDisks",
+                        "osType": "Linux",
+                        "enableAutoCcaling": true,
+                        "minCount": 3,
+                        "maxCount": 6,
+                        "mode": "System",
+                        "type": "VirtualMachineScaleSets",
+                        "nodeTaints": [],
+                        "nodeLabels": {
+                             "environment": "demo"
+                                      },
+                    }
+          ]
+        },
+    },
+    "resources": [
+        {
+            "apiVersion": "2020-07-01",
+            "type": "Microsoft.ContainerService/managedClusters",
+            "location": "[parameters('location')]",
+            "name": "[parameters('aksClusterName')]",
+            "tags": {
+                "displayname": "AKS Cluster"
+            },
+            "copy": {
+                "name": "agentPoolProfiles",
+                "count": "[length(parameters('agentPoolProfiles'))]"
+            },
+            "properties": {
+                "dnsPrefix": "[parameters('dnsPrefix')]",
+                "agentPoolProfiles": [
+                    {
+                        "name": "agentpool",
+                        "osDiskSizeGB": "[parameters('osDiskSizeGB')]",
+                        "count": "[parameters('agentCount')]",
+                        "vmSize": "[parameters('agentVMSize')]",
+                        "osType": "[parameters('osType')]",
+                        "storageProfile": "ManagedDisks",
+                        "type": "VirtualMachineScaleSets",
+                        "mode": "System"
+                    }
+                ]
+            }
+        }
+    ],
+    "outputs": {
+        "controlPlaneFQDN": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.ContainerService/managedClusters/', parameters('aksClusterName'))).fqdn]"
+        }
+    }
+}

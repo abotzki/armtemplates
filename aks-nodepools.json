@@ -55,10 +55,10 @@
                         "nodeTaints": [],
                         "nodeLabels": {
                              "environment": "demo"
-                                      },
+                                      }
                     }
           ]
-        },
+        }
     },
     "resources": [
         {

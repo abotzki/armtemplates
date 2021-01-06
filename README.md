@@ -24,6 +24,10 @@ This is an overview of the solution
 
 The following resources are deployed as part of the solution
 
+## General Documentation
+
+[https://docs.microsoft.com/en-us/azure/templates/microsoft.containerservice/managedclusters](https://docs.microsoft.com/en-us/azure/templates/microsoft.containerservice/managedclusters)
+
 ### Resource provider Microsoft.ContainerService
 
 Description Resource Provider Microsoft.ContainerService
